@@ -1,0 +1,40 @@
+config RT3352_INIC_MII
+	tristate "Ralink RT3352 802.11n iNIC MII support"
+
+config  RT3352_INIC_AP
+	bool "RT3352 Support"
+	default n
+	depends on RT3352_INIC_MII
+
+config  RT3352_INIC_AP_LED
+	bool "LED support"
+	depends on RT3352_INIC_MII
+
+config  RT3352_INIC_AP_LLTD
+	bool "LLTD (Link Layer Topology Discovery Protocol)"
+	depends on RT3352_INIC_MII
+
+config  RT3352_INIC_AP_WDS
+	bool "WDS support"
+	depends on RT3352_INIC_MII
+
+config  RT3352_INIC_AP_MBSS
+	bool "MBSSID support"
+	depends on RT3352_INIC_MII
+
+config  RT3352_INIC_AP_APCLI
+	bool "AP-Client support"
+	depends on RT3352_INIC_MII
+
+config  RT3352_INIC_AP_DLS
+	bool "DLS (Direct-Link Setup) support"
+	depends on RT3352_INIC_MII
+
+config  RT3352_INIC_AP_IDS
+	bool "IDS (Intrusion Detection System) support"
+	depends on RT3352_INIC_MII
+
+config  RT3352_INIC_AP_GREENAP
+	bool "Green AP mode support"
+	depends on RT3352_INIC_MII
+
