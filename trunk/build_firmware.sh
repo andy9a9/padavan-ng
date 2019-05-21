@@ -134,6 +134,7 @@ dir_wifi_dst="$ROOTDIR/linux-$kernel_id/drivers/net/wireless/ralink"
 dir_wifi_ver="2.7.X.X"
 rm -rf "$dir_wifi_dst/rt2860v2"
 rm -rf "$dir_wifi_dst/rt3090"
+rm -rf "$dir_wifi_dst/rt3352_mii"
 rm -rf "$dir_wifi_dst/rt5392"
 rm -rf "$dir_wifi_dst/rt5592"
 rm -rf "$dir_wifi_dst/rt3593"
@@ -166,6 +167,11 @@ if [ -n "$CONFIG_RT3090_AP" ] ; then
 	dir_wifi_ver="2.7.X.X"
 	cp -rfL "$dir_wifi_src/rtpci/$dir_wifi_ver/rt3090" "$dir_wifi_dst/"
 	cp -rfL "$dir_wifi_src/rtpci/$dir_wifi_ver/rt3090_ap" "$dir_wifi_dst/"
+fi
+if [ -n "$CONFIG_RT3352_INIC_MII" ] ; then
+	dir_wifi_ver="2.4.X.X"
+	cp -rfL "$dir_wifi_src/mii/$dir_wifi_ver/rt3352_mii" "$dir_wifi_dst/"
+	cp -rfL "$dir_wifi_src/mii/$dir_wifi_ver/rt3352_mii_ap" "$dir_wifi_dst/"
 fi
 if [ -n "$CONFIG_RT5392_AP" ] ; then
 	dir_wifi_ver="2.7.X.X"

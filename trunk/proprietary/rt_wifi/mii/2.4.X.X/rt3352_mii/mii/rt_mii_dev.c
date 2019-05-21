@@ -14,13 +14,14 @@ inline void free_netdev(struct net_device *dev)
 }
 #endif
 
+#if 0 // already provided by kernel
 #ifndef HAVE_NETDEV_PRIV
 inline void *netdev_priv(struct net_device *dev)
 {
 	return dev->priv;
 }
 #endif
-
+#endif
 
 static int debug = -1;
 char *mode  = "ap";		// ap mode
@@ -112,16 +113,25 @@ iNIC_PRIVATE *gAdapter[2];
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,28)
 static struct net_device_ops Netdev_Ops[2];
+int br_handle_frame_hook = 0; // flag that hook was registered
 #endif
 
 
 #if defined(CONFIG_BRIDGE) || defined (CONFIG_BRIDGE_MODULE)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,28)
 DECLARE_BR_HANDLE_FRAME(org_br_handle_frame, p, skb, pskb);
 
 DEFINE_BR_HANDLE_FRAME(my_br_handle_frame, p, skb, pskb)
+#else
+static rx_handler_result_t my_br_handle_frame(struct sk_buff **pskb)
+#endif
 {
 	iNIC_PRIVATE *pAd = gAdapter[0];
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,28)
 	DECLARE_BR_HANDLE_FRAME_SKB(skb, pskb);
+#else
+	struct sk_buff *skb = *pskb;
+#endif
 
 #ifdef CONFIG_CONCURRENT_INIC_SUPPORT
 	DispatchAdapter(&pAd, skb);
@@ -173,6 +183,7 @@ DEFINE_BR_HANDLE_FRAME(my_br_handle_frame, p, skb, pskb)
 			return BR_HOOK_NOT_HANDLED;
 		}
 
+#if 0
 		if (org_br_handle_frame)
 		{
 			return BR_HANDLE_FRAME(org_br_handle_frame, p, skb, pskb);
@@ -181,6 +192,7 @@ DEFINE_BR_HANDLE_FRAME(my_br_handle_frame, p, skb, pskb)
 					skb->protocol, ret, BR_HOOK_HANDLED, BR_HOOK_NOT_HANDLED);
 			*/
 		}
+#endif
 		kfree_skb(skb);
 		return BR_HOOK_HANDLED;
 	}
@@ -256,16 +268,27 @@ static struct packet_type arp_packet_type = {
 void racfg_inband_hook_init(iNIC_PRIVATE *pAd)
 {
 #if defined(CONFIG_BRIDGE) || defined (CONFIG_BRIDGE_MODULE)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,28)
 	if (br_handle_frame_hook)
 	{
 		org_br_handle_frame = br_handle_frame_hook;
 		printk("Org bridge hook = %p\n",  org_br_handle_frame);
 		br_handle_frame_hook = my_br_handle_frame;
 		printk("Change bridge hook = %p\n",  br_handle_frame_hook);
+#else
+	int res = netdev_rx_handler_register(pAd->dev, my_br_handle_frame,NULL);
+	if (!res)
+	{
+		printk("Bridge hook registered = %p\n",  my_br_handle_frame);
+		br_handle_frame_hook = 1;
+#endif
 	}
 	else
 	{
 		printk("Warning! Bridge module not init yet. Please modprobe bridge at first if you want to use bridge.\n");
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,28)
+		br_handle_frame_hook = 0;
+#endif
 	}
 #endif
 	in_band_packet_type.dev = pAd->master; /* hook only on mii master device */
@@ -275,7 +298,7 @@ void racfg_inband_hook_init(iNIC_PRIVATE *pAd)
 #endif
 }
 
-void racfg_inband_hook_cleanup(void)
+void racfg_inband_hook_cleanup(iNIC_PRIVATE *pAd)
 {
 #ifdef CONFIG_CONCURRENT_INIC_SUPPORT
 	if(ConcurrentObj.CardCount > 0)
@@ -287,10 +310,18 @@ void racfg_inband_hook_cleanup(void)
 	dev_remove_pack(&arp_packet_type);
 #endif
 #if defined(CONFIG_BRIDGE) || defined (CONFIG_BRIDGE_MODULE)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,28)
 	if (org_br_handle_frame)
 	{
 		br_handle_frame_hook = org_br_handle_frame;
 		printk("Restore bridge hook = %p\n",  br_handle_frame_hook);
+#else
+	if (br_handle_frame_hook)
+	{
+		netdev_rx_handler_unregister(pAd->dev);
+		printk("Bridge hook unregistered\n");
+		br_handle_frame_hook = 0;
+#endif
 	}
 #endif
 }

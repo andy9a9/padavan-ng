@@ -303,7 +303,7 @@ typedef struct _racfg_queue
 } RaCfgQueue;
 
 
-typedef struct file_handle
+typedef struct io_file_handle
 {
 	char name[MAX_FILE_NAME_SIZE];
 	
@@ -554,8 +554,13 @@ struct vlan_tic
                     struct packet_type *pt, struct net_device *orig_dev)
 #else
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,30)
 #define BR_HOOK_NOT_HANDLED skb
 #define BR_HOOK_HANDLED     NULL
+#else
+#define BR_HOOK_NOT_HANDLED RX_HANDLER_ANOTHER
+#define BR_HOOK_HANDLED     RX_HANDLER_CONSUMED
+#endif
 #define DECLARE_BR_HANDLE_FRAME(func, p, skb, pskb) \
     static struct sk_buff *(*func)(struct net_bridge_port *p, struct sk_buff *skb)
 #define DEFINE_BR_HANDLE_FRAME(func, p, skb, pskb) \

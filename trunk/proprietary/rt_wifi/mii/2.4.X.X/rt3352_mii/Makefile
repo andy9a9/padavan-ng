@@ -31,8 +31,14 @@
 #                   PCIE
 #                   
 #
-CONFIG_CHIP_NAME = 3662
-CONFIG_INF_TYPE=USB
+
+ifeq ($(CONFIG_INF_TYPE),)
+CONFIG_INF_TYPE = MII
+endif
+
+ifeq ($(CONFIG_CHIP_NAME),)
+CONFIG_CHIP_NAME = 3352
+endif
 
 #
 # Please enable CONFIG_EXTRA_CFLAG=y on 2.6.25 or above 
@@ -80,9 +86,11 @@ CONFIG_WOWLAN_SUPPORT=
 # some platform not support 32-bit DMA addressing, need to turn this flag on
 CONFIG_PCI_FORCE_DMA=
 
+#PLATFORM: Target platform
+PLATFORM = PC
 #PLATFORM = FREESCALE832X
 #PLATFORM = FREESCALE8377
-PLATFORM = ST
+#PLATFORM = ST
 #PLATFORM = IXP2
 #PLATFORM = TWINPASS
 #PLATFORM = 5VT
@@ -99,6 +107,11 @@ PLATFORM = ST
 #PLATFORM = INF_AMAZON_SE
 #PLATFORM = RT288x
 #PLATFORM = UBICOM6622
+#PLATFORM = RALINK_3352
+
+ifeq ($(CONFIG_CHIP_NAME),3352)
+PLATFORM = RALINK_3352
+endif
 
 ifeq ($(PLATFORM),ST)
 LINUX_SRC = $(KERNELDIR)
@@ -119,16 +132,12 @@ endif
 
 
 ifeq ($(PLATFORM),PC)
-#
 # Linux 2.6
-#
 LINUX_SRC = /lib/modules/$(shell uname -r)/build
-#
 # Linux 2.4 Change to your local setting
-#
 #LINUX_SRC = /usr/src/linux-2.4
-#CFLAGS := -D__KERNEL__ -I$(LINUX_SRC)/include -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include $(LINUX_SRC)/include/linux/modversions.h $(WFLAGS)
-CROSS_COMPILE =
+LINUX_SRC_MODULE = /lib/modules/$(shell uname -r)/kernel/drivers/net/wireless/
+CROSS_COMPILE = 
 endif
 
 ifeq ($(PLATFORM),FREESCALE832X)
@@ -271,7 +280,7 @@ AS := $(CROSS_COMPILE)as
 
 _CFLAGS += -I$(RALINK_SRC)/comm
 _CFLAGS += -D__KERNEL__ 
-_CFLAGS += -O0 -g -Wall -Wstrict-prototypes -Wno-trigraphs 
+_CFLAGS += --Wall -Wstrict-prototypes -Wno-trigraphs
 _CFLAGS += -DDBG -DFIX_POTENTIAL_BUG #-DINBAND_DEBUG
 _CFLAGS += $(WFLAGS)
 

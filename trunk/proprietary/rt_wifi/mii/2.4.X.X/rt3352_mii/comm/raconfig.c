@@ -100,7 +100,7 @@ extern const struct iw_handler_def rlk_inic_iw_handler_def;
 
 #if (CONFIG_INF_TYPE==INIC_INF_TYPE_MII)
 extern void racfg_inband_hook_init(iNIC_PRIVATE *pAd);
-extern void racfg_inband_hook_cleanup(void);
+extern void racfg_inband_hook_cleanup(iNIC_PRIVATE *pAd);
 #endif
 
 static void RaCfgAddHeartBeatTimer(iNIC_PRIVATE *pAd);
@@ -430,7 +430,7 @@ void RaCfgExit(iNIC_PRIVATE *pAd)
 	
 	
 #if (CONFIG_INF_TYPE==INIC_INF_TYPE_MII)
-	racfg_inband_hook_cleanup();
+	racfg_inband_hook_cleanup(pAd);
 	if (pAd->RaCfgObj.eapol_skb != NULL)
 	{
 		kfree_skb(pAd->RaCfgObj.eapol_skb);
