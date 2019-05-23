@@ -1,0 +1,11 @@
+--- a/configure	2019-05-23 14:49:55.296960353 +0200
++++ b/configure	2019-05-23 14:50:22.871211376 +0200
+@@ -2384,7 +2384,7 @@
+ ac_config_headers="$ac_config_headers config.h"
+ 
+ 
+-am__api_version='1.14'
++am__api_version='1.15'
+ 
+ ac_aux_dir=
+ for ac_dir in "$srcdir" "$srcdir/.." "$srcdir/../.."; do
