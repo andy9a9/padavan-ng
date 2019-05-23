@@ -42,6 +42,7 @@ LINUX_CONFIG   = $(ROOTDIR)/$(LINUXDIR)/.config
 ARCH_CONFIG    = $(ROOTDIR)/vendors/config/mips/config.arch
 PROJECT_CONFIG = $(ROOTDIR)/.config
 SSTRIP_TOOL    = $(if $(CONFIG_FIRMWARE_PERFORM_SSTRIP),$(ROOTDIR)/tools/sstrip/sstrip)
+EXTERNAL_SOURCES = $(ROOTDIR)/externals.mk
 
 FIRMWARE_MAXSIZE = $(shell awk '/"Firmware"/{ getline; getline; gsub(/,$$/,""); print strtonum($$2); }' $(BOARDDIR)/partitions.config)
 
